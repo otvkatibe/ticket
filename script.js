@@ -29,6 +29,11 @@ document.getElementById('ticket-form').addEventListener('submit', function(event
         hasError = true;
     }
 
+    if (fileInput.files.length === 0) {
+        imageError.textContent = "A imagem de perfil é obrigatória.";
+        hasError = true;
+    }
+
     if (hasError) return;
 
     document.getElementById('ticket-name').textContent = name;
