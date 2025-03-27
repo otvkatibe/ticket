@@ -28,6 +28,10 @@ document.getElementById('ticket-form').addEventListener('submit', function(event
         githubError.textContent = "Usuário do GitHub é obrigatório.";
         hasError = true;
     }
+    else if (!github.includes('@')) {
+        githubError.textContent = "Usuário do GitHub deve conter '@'.";
+        hasError = true;
+    }
 
     if (fileInput.files.length === 0) {
         imageError.textContent = "A imagem de perfil é obrigatória.";
@@ -48,8 +52,8 @@ document.getElementById('ticket-form').addEventListener('submit', function(event
             imageError.textContent = "O arquivo deve ser uma imagem.";
             return;
         }
-        if (file.size > 2 * 1024 * 1024) {
-            imageError.textContent = "A imagem deve ter no máximo 2MB.";
+        if (file.size > 500 * 1024) {
+            imageError.textContent = "A imagem deve ter no máximo 500KB.";
             return;
         }
 
