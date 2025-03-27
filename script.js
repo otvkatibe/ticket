@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showError("#image-error", "O arquivo deve ser uma imagem.");
             isValid = false;
         } else if (file.size > MAX_FILE_SIZE) {
-            showError("#image-error", `A imagem deve ter no máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
+            showError("#image-error", `A imagem deve ter no máximo ${MAX_FILE_SIZE / (500 * 1024)}MB.`);
             isValid = false;
         }
 
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function generateTicket(name, email, github, file) {
         document.querySelector("#ticket-name").textContent = name;
         document.querySelector("#ticket-email").textContent = email;
-        document.querySelector("#ticket-github").textContent = github;
+        document.querySelector("#ticket-github").textContent = "@" + github;
 
         const imgElement = document.querySelector("#ticket-img");
         const reader = new FileReader();
