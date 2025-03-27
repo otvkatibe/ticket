@@ -38,8 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!github) {
             showError("#github-error", "Usuário do GitHub é obrigatório.");
             isValid = false;
+        } else {
+            if (!github.startswith("@")){
+                github = "@" + github;
+            }
         }
-
+        
         if (!file) {
             showError("#image-error", "A imagem de perfil é obrigatória.");
             isValid = false;
