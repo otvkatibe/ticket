@@ -1,85 +1,91 @@
-document.getElementById('ticket-form').addEventListener('submit', function(event) {
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("#ticket-form");
+    const fileInput = document.querySelector("#profile-pic");
+    const ticketSection = document.querySelector("#ticket");
+    const fileNameDisplay = document.querySelector("#file-name");
 
-    const name = document.getElementById('full-name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const github = document.getElementById('github-username').value.trim();
-    const fileInput = document.getElementById('profile-pic');
-    const ticketSection = document.getElementById('ticket');
+    const MAX_FILE_SIZE = 500 * 1024;
 
-    const nameError = document.getElementById('name-error');
-    const emailError = document.getElementById('email-error');
-    const githubError = document.getElementById('github-error');
-    const imageError = document.getElementById('image-error');
+    form.addEventListener("submit", handleFormSubmit);
+    fileInput.addEventListener("change", updateFileName);
 
-    [nameError, emailError, githubError, imageError].forEach(el => el.textContent = "");
+    function handleFormSubmit(event) {
+        event.preventDefault();
 
-    let hasError = false;
-
-    if (name === "") {
-        nameError.textContent = "Nome é obrigatório.";
-        hasError = true;
-    }
-    if (email === "" || !validateEmail(email)) {
-        emailError.textContent = "E-mail inválido.";
-        hasError = true;
-    }
-    if (github === "") {
-        githubError.textContent = "Usuário do GitHub é obrigatório.";
-        hasError = true;
-    }
-    else if (!github.includes('@')) {
-        githubError.textContent = "Usuário do GitHub deve conter '@'.";
-        hasError = true;
-    }
-
-    if (fileInput.files.length === 0) {
-        imageError.textContent = "A imagem de perfil é obrigatória.";
-        hasError = true;
-    }
-
-    if (hasError) return;
-
-    document.getElementById('ticket-name').textContent = name;
-    document.getElementById('ticket-email').textContent = email;
-    document.getElementById('ticket-github').textContent = github;
-
-    const imgElement = document.getElementById('ticket-img');
-    if (fileInput.files.length > 0) {
+        const name = form["full-name"].value.trim();
+        const email = form["email"].value.trim();
+        const github = form["github-username"].value.trim();
         const file = fileInput.files[0];
+        clearErrors();
 
-        if (!file.type.startsWith('image/')) {
-            imageError.textContent = "O arquivo deve ser uma imagem.";
-            return;
-        }
-        if (file.size > 500 * 1024) {
-            imageError.textContent = "A imagem deve ter no máximo 500KB.";
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            imgElement.src = e.target.result;
-            imgElement.classList.add('show');
-        };
-        reader.readAsDataURL(file);
-    } else {
-        imgElement.classList.remove('show');
+        if (!validateFields(name, email, github, file)) return;
+        generateTicket(name, email, github, file);
     }
 
-    ticketSection.classList.remove('hidden');
-});
+    function validateFields(name, email, github, file) {
+        let isValid = true;
 
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
+        if (!name) {
+            showError("#name-error", "Nome é obrigatório.");
+            isValid = false;
+        }
 
-document.getElementById('profile-pic').addEventListener('change', function() {
-    const fileNameDisplay = document.getElementById('file-name');
-    if (this.files.length > 0) {
-        fileNameDisplay.textContent = `Arquivo selecionado: ${this.files[0].name}`;
-    } else {
-        fileNameDisplay.textContent = "";
+        if (!email || !isValidEmail(email)) {
+            showError("#email-error", "E-mail inválido.");
+            isValid = false;
+        }
+
+        if (!github) {
+            showError("#github-error", "Usuário do GitHub é obrigatório.");
+            isValid = false;
+        }
+
+        if (!file) {
+            showError("#image-error", "A imagem de perfil é obrigatória.");
+            isValid = false;
+        } else if (!file.type.startsWith("image/")) {
+            showError("#image-error", "O arquivo deve ser uma imagem.");
+            isValid = false;
+        } else if (file.size > MAX_FILE_SIZE) {
+            showError("#image-error", `A imagem deve ter no máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function generateTicket(name, email, github, file) {
+        document.querySelector("#ticket-name").textContent = name;
+        document.querySelector("#ticket-email").textContent = email;
+        document.querySelector("#ticket-github").textContent = github;
+
+        const imgElement = document.querySelector("#ticket-img");
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            imgElement.src = e.target.result;
+            imgElement.classList.add("show");
+        };
+
+        reader.readAsDataURL(file);
+
+        ticketSection.classList.remove("hidden");
+    }
+
+    function clearErrors() {
+        document.querySelectorAll(".error-message").forEach(error => error.textContent = "");
+    }
+
+    function showError(selector, message) {
+        document.querySelector(selector).textContent = message;
+    }
+
+    function isValidEmail(email) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    }
+
+    function updateFileName() {
+        fileNameDisplay.textContent = this.files.length > 0 ? `Arquivo selecionado: ${this.files[0].name}` : "";
     }
 });
