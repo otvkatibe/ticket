@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ticketSection = document.querySelector("#ticket");
     const fileNameDisplay = document.querySelector("#file-name");
 
-    const MAX_FILE_SIZE = 500 * 1024;
+    const MAX_FILE_SIZE = 500 * 1024; // 500KB
 
     form.addEventListener("submit", handleFormSubmit);
     fileInput.addEventListener("change", updateFileName);
@@ -14,11 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const name = form["full-name"].value.trim();
         const email = form["email"].value.trim();
-        const github = form["github-username"].value.trim();
+        let github = form["github-username"].value.trim();
         const file = fileInput.files[0];
         clearErrors();
 
         if (!validateFields(name, email, github, file)) return;
+        
+        if (!github.startsWith("@")) {
+            github = "@" + github.replace(/^@+/, '');
+        }
+
         generateTicket(name, email, github, file);
     }
 
@@ -38,10 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!github) {
             showError("#github-error", "Usuário do GitHub é obrigatório.");
             isValid = false;
-        } else {
-            if (!github.startswith("@")){
-                github = "@" + github;
-            }
         }
         
         if (!file) {
@@ -51,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showError("#image-error", "O arquivo deve ser uma imagem.");
             isValid = false;
         } else if (file.size > MAX_FILE_SIZE) {
-            showError("#image-error", `A imagem deve ter no máximo ${MAX_FILE_SIZE / (500 * 1024)}MB.`);
+            showError("#image-error", "A imagem deve ter no máximo 500KB.");
             isValid = false;
         }
 
@@ -61,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function generateTicket(name, email, github, file) {
         document.querySelector("#ticket-name").textContent = name;
         document.querySelector("#ticket-email").textContent = email;
-        document.querySelector("#ticket-github").textContent = "@" + github;
+        document.querySelector("#ticket-github").textContent = github;
 
         const imgElement = document.querySelector("#ticket-img");
         const reader = new FileReader();
